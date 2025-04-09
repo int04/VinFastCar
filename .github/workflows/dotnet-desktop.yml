@@ -1,4 +1,4 @@
-name: Build & Release VinfastCar
+name: Build & Release VinfastCar (x86 + x64)
 
 on:
   push:
@@ -17,12 +17,13 @@ jobs:
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '8.0.x'  # Đổi nếu bạn dùng .NET khác
+        dotnet-version: '8.0.x'
 
     - name: Restore dependencies
       run: dotnet restore
 
-    - name: Publish self-contained WinForms app
+    # ---------- Build win-x64 ----------
+    - name: Publish WinForms app (win-x64)
       run: |
         dotnet publish VinFastCar/VinfastCar.csproj `
           --configuration Release `
@@ -31,25 +32,49 @@ jobs:
           -p:PublishSingleFile=true `
           -p:IncludeNativeLibrariesForSelfExtract=true `
           -p:PublishTrimmed=false `
-          --output ./publish
+          --output ./publish/x64
 
-    - name: Rename output exe
+    - name: Rename win-x64 exe
       run: |
-        Rename-Item -Path "./publish/VinfastCar.exe" -NewName "VinfastCar-${{ github.run_number }}.exe"
+        Rename-Item -Path "./publish/x64/VinfastCar.exe" -NewName "VinfastCar-x64-${{ github.run_number }}.exe"
 
+    # ---------- Build win-x86 ----------
+    - name: Publish WinForms app (win-x86)
+      run: |
+        dotnet publish VinFastCar/VinfastCar.csproj `
+          --configuration Release `
+          --runtime win-x86 `
+          --self-contained true `
+          -p:PublishSingleFile=true `
+          -p:IncludeNativeLibrariesForSelfExtract=true `
+          -p:PublishTrimmed=false `
+          --output ./publish/x86
+
+    - name: Rename win-x86 exe
+      run: |
+        Rename-Item -Path "./publish/x86/VinfastCar.exe" -NewName "VinfastCar-x86-${{ github.run_number }}.exe"
+
+    # ---------- Release ----------
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v1
       with:
         tag_name: v1.0.${{ github.run_number }}
         name: VinfastCar v1.0.${{ github.run_number }}
         body: |
-          🚗 VinfastCar WinForms build
-          - Self-contained .exe for Windows x64
+          🚗 VinfastCar WinForms builds:
+          - 🖥️ Windows x64 build
+          - 💻 Windows x86 build
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Upload release asset
+    - name: Upload win-x64 release asset
       uses: softprops/action-gh-release@v1
       with:
         tag_name: v1.0.${{ github.run_number }}
-        files: ./publish/VinfastCar-${{ github.run_number }}.exe
+        files: ./publish/x64/VinfastCar-x64-${{ github.run_number }}.exe
+
+    - name: Upload win-x86 release asset
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v1.0.${{ github.run_number }}
+        files: ./publish/x86/VinfastCar-x86-${{ github.run_number }}.exe
