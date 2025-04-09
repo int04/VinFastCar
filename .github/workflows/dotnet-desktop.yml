@@ -24,7 +24,7 @@ jobs:
 
     - name: Publish self-contained WinForms app
       run: |
-        dotnet publish VinfastCar.csproj `
+        dotnet publish VinFastCar/VinfastCar.csproj `
           --configuration Release `
           --runtime win-x64 `
           --self-contained true `
