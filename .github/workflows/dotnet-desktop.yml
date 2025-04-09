@@ -1,0 +1,55 @@
+name: Build & Release VinfastCar
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout source code
+      uses: actions/checkout@v3
+
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'  # Đổi nếu bạn dùng .NET khác
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Publish self-contained WinForms app
+      run: |
+        dotnet publish VinfastCar.csproj `
+          --configuration Release `
+          --runtime win-x64 `
+          --self-contained true `
+          -p:PublishSingleFile=true `
+          -p:IncludeNativeLibrariesForSelfExtract=true `
+          -p:PublishTrimmed=false `
+          --output ./publish
+
+    - name: Rename output exe
+      run: |
+        Rename-Item -Path "./publish/VinfastCar.exe" -NewName "VinfastCar-${{ github.run_number }}.exe"
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v1.0.${{ github.run_number }}
+        name: VinfastCar v1.0.${{ github.run_number }}
+        body: |
+          🚗 VinfastCar WinForms build
+          - Self-contained .exe for Windows x64
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Upload release asset
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v1.0.${{ github.run_number }}
+        files: ./publish/VinfastCar-${{ github.run_number }}.exe
