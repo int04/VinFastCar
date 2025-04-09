@@ -10,7 +10,7 @@ Hiện tại ứng dụng chỉ chạy trên nền tảng WINDOWS.
 
 Bạn có thể cài visual code, download dự án này về để chạy trực tiếp và kiểm tra code trước khi chạy. Ngoài ra, mình cũng đã BUILD sẵn cho các bạn một bản.
 
-Tải về tại đây: https://github.com/int04/VinFastCar/releases/download/v1.0.4/VinfastCar-4.exe
+Tải về tại đây: https://github.com/int04/VinFastCar/releases
 
 Hi vọng sẽ giúp ích cho các bạn trong việc lái xe, quản lý xe của mình.
 
